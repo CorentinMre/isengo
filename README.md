@@ -19,7 +19,7 @@ A [GO](https://go.dev/) API wrapper for ISEN-OUEST, with webAurion information l
 
 ## Usage
 - `go mod init <name-of-your-project>`
-- `go get github.com/CorentinMre/isengo`
+- `go get github.com/CorentinMre/isengo/webaurion`
 
 Here is an example script:
 
