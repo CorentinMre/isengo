@@ -41,7 +41,7 @@ func main() {
 		return
 	}
 
-    userInfo, err := w.UserInfo()
+	userInfo, err := w.UserInfo()
 	if err != nil {
 		fmt.Println("Failed to get user info:", err)
 	} else {
