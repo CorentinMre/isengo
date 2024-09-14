@@ -25,7 +25,7 @@ Here is an example script:
 
 ```go
 package main
-markdown
+
 import (
 	"fmt"
 	"github.com/CorentinMre/isengo/webaurion"
