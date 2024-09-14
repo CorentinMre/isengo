@@ -11,7 +11,7 @@
 
 ## Description
 
-A [GO](https://go.dev/) API wrapper for ISEN-OUEST, with webAurion information like calendar, grades, absences, user info
+A [GO](https://go.dev/) API wrapper for ISEN-OUEST, with webAurion information like planning, grades, absences and user info
 
 ## Dependencies
 
