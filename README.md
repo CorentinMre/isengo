@@ -18,7 +18,7 @@ A [GO](https://go.dev/) API wrapper for ISEN-OUEST, with webAurion information l
 - [goquery](https://github.com/PuerkitoBio/goquery)
 
 ## Usage
-
+- `go mod init <name-of-your-project>`
 - `go get github.com/CorentinMre/isengo`
 
 Here is an example script:
