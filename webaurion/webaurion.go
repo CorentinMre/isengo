@@ -18,7 +18,7 @@ type WebAurion struct {
 	Cookies    []*http.Cookie
 	ViewState  string
 	Link       map[string]string
-	TimeConn   time.Time
+	LastRequetTime   time.Time
 	Name       string
 	LoggedIn   bool
 	Client     *http.Client
@@ -102,7 +102,7 @@ func (w *WebAurion) Login(username, password string) (bool, error) {
 	// fmt.Println(w.IdInit)
 
 	w.LoggedIn = true
-	w.TimeConn = time.Now()
+	w.LastRequetTime = time.Now()
 	return true, nil
 }
 
@@ -256,6 +256,8 @@ func (w *WebAurion) GetGrades() (*GradeReport, error) {
 		return nil, fmt.Errorf("error parsing grades: %v", err)
 	}
 
+	w.LastRequetTime = time.Now()
+
 	return gradeReport, nil
 }
 
@@ -273,6 +275,8 @@ func (w *WebAurion) GetAbsences() (*AbsenceReport, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error parsing absences: %v", err)
 	}
+
+	w.LastRequetTime = time.Now()
 
 	return absenceReport, nil
 }
@@ -304,6 +308,8 @@ func (w *WebAurion) GetPlanning() (*PlanningReport, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error parsing planning data: %v", err)
 	}
+
+	w.LastRequetTime = time.Now()
 
 	return planningReport, nil
 }
@@ -342,4 +348,15 @@ func (w *WebAurion) UserInfo() (*UserInfo, error) {
 	userInfo := NewUserInfo(firstNameStr, lastNameStr, w.Name, w.RemoveAccents(email))
 
 	return userInfo , nil
+}
+
+func (w *WebAurion) Refresh() error {
+	if time.Since(w.LastRequetTime) > 30*time.Minute {
+		_, err := w.DoRequest(w.GetGradesPayload())
+		if err != nil {
+			return err
+		}
+		w.LastRequetTime = time.Now()
+	}
+	return nil
 }
