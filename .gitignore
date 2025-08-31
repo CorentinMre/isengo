@@ -4,3 +4,4 @@
 main.go
 go.sum
 benchmarks/
+tests/

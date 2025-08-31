@@ -236,6 +236,7 @@ type Details struct {
     Room         string   `json:"room"`
     Type         string   `json:"type"`
     Subject      string   `json:"subject"`
+    Description  string `json:"description"`
     Instructors  []string `json:"instructors"`
     ClassGroups  []string `json:"classGroups"`
 }
@@ -250,18 +251,19 @@ func parseEventTitle(title string) (Details, error) {
         return Details{}, fmt.Errorf("incomplete event title: %v", parts)
     }
 
-    // Extraire et nettoyer les diff�rentes parties du titre
+    // Extraire et nettoyer les différentes parties du titre
     time := strings.TrimSpace(parts[0])
     room := strings.TrimSpace(parts[1])
     eventType := strings.TrimSpace(parts[2])
     subject := strings.TrimSpace(parts[3])
-    instructors := strings.Split(strings.TrimSpace(parts[4]), "/")
+    description := strings.TrimSpace(parts[4])
 
     // Gérer les groupes de classes s'ils sont disponibles
+	var instructors []string
     var classGroups []string
     if len(parts) > 5 {
-		classGroups = strings.Split(strings.TrimSpace(parts[4]), "/")
 		instructors = strings.Split(strings.TrimSpace(parts[5]), "/")
+		classGroups = strings.Split(strings.TrimSpace(parts[6]), "/")
     }
 
     // Si les parties essentielles sont manquantes
@@ -274,6 +276,7 @@ func parseEventTitle(title string) (Details, error) {
         Room:        room,
         Type:        eventType,
         Subject:     subject,
+		Description: description,
         Instructors: instructors,
         ClassGroups: classGroups,
     }, nil
