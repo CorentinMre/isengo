@@ -257,10 +257,11 @@ func parseEventTitle(title string) (Details, error) {
     subject := strings.TrimSpace(parts[3])
     instructors := strings.Split(strings.TrimSpace(parts[4]), "/")
 
-    // G�rer les groupes de classes s'ils sont disponibles
+    // Gérer les groupes de classes s'ils sont disponibles
     var classGroups []string
     if len(parts) > 5 {
-        classGroups = strings.Split(strings.TrimSpace(parts[5]), "/")
+		classGroups = strings.Split(strings.TrimSpace(parts[4]), "/")
+		instructors = strings.Split(strings.TrimSpace(parts[5]), "/")
     }
 
     // Si les parties essentielles sont manquantes
