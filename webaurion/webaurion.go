@@ -11,7 +11,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
-
+	// "os"
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -27,6 +27,7 @@ type WebAurion struct {
 	GradeLink        string
 	AbsenceLink      string
 	PlanningLink     string
+	// UserInfoLink	 string
 	IdInit           string
 	IdBasic          string
 	Payload          string
@@ -464,13 +465,43 @@ func (w *WebAurion) UserInfo() (*UserInfo, error) {
 	return userInfo, nil
 }
 
-func (w *WebAurion) Refresh() error {
-	if time.Since(w.LastRequetTime) > 30*time.Minute {
-		_, err := w.DoRequest(w.GetGradesPayload())
-		if err != nil {
-			return err
-		}
-		w.LastRequetTime = time.Now()
-	}
-	return nil
+func (w *WebAurion) IsSessionValid() bool {
+    if !w.LoggedIn {
+        return false
+    }
+    
+	// simple request juste for check the status of the cookie (expired or not)
+    req, err := http.NewRequest("GET", w.BaseURL+"/webAurion/", nil)
+    if err != nil {
+        return false
+    }
+    w.setRequestHeaders(req)
+    
+    resp, err := w.Client.Do(req)
+    if err != nil {
+        return false
+    }
+    defer resp.Body.Close()
+    
+    
+    return resp.Request.URL.Path != "auth3.isen-ouest.fr" // if we go back to the login page, we are disconnected
 }
+
+func (w *WebAurion) Refresh() error {
+    if !w.IsSessionValid() {
+        w.LoggedIn = false
+        return fmt.Errorf("session expired")
+    }
+    
+    if time.Since(w.LastRequetTime) > 20*time.Minute {
+        _, err := w.DoRequest(w.GetGradesPayload())
+        if err != nil {
+            w.LoggedIn = false
+            return fmt.Errorf("refresh failed: %v", err)
+        }
+        w.LastRequetTime = time.Now()
+    }
+    
+    return nil
+}
+
