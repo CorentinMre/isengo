@@ -350,20 +350,31 @@ func (w *WebAurion) getViewState(body io.Reader, first bool) (string, error) {
 }
 
 func (w *WebAurion) setRequestHeaders(req *http.Request) {
-	req.Header.Set("User-Agent", "ISENGO https://github.com/CorentinMre/isengo")
-	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
-	req.Header.Set("Accept-Language", "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7")
-	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("Pragma", "no-cache")
-	req.Header.Set("Sec-Ch-Ua", "\"Chromium\";v=\"124\", \"Google Chrome\";v=\"124\", \"Not-A.Brand\";v=\"99\"")
-	req.Header.Set("Sec-Ch-Ua-Mobile", "?0")
-	req.Header.Set("Sec-Ch-Ua-Platform", "\"macOS\"")
+	
+	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+	req.Header.Set("Accept-Language", "fr-FR,fr;q=0.9")
+	req.Header.Set("Connection", "keep-alive")
 	req.Header.Set("Sec-Fetch-Dest", "document")
 	req.Header.Set("Sec-Fetch-Mode", "navigate")
 	req.Header.Set("Sec-Fetch-Site", "same-origin")
-	req.Header.Set("Sec-Fetch-User", "?1")
-	req.Header.Set("Upgrade-Insecure-Requests", "1")
-	req.Header.Set("Referer", "https://web.isen-ouest.fr/webAurion/")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0.1 Safari/605.1.15")
+
+	
+	if req.Method == "POST" && req.URL.Path == "/webAurion/login" {
+		req.Header.Set("Origin", "https://web.isen-ouest.fr")
+		req.Header.Set("Referer", "https://web.isen-ouest.fr/webAurion/faces/Login.xhtml")
+	} else if req.Method == "GET" {
+		// Pour les requêtes GET après login
+		req.Header.Set("Priority", "u=0, i")
+		if req.URL.Path == "/webAurion/" {
+			req.Header.Set("Referer", "https://web.isen-ouest.fr/webAurion/faces/Login.xhtml")
+		} else {
+			req.Header.Set("Referer", "https://web.isen-ouest.fr/webAurion/")
+		}
+	} else {
+		// Autres requêtes POST
+		req.Header.Set("Referer", "https://web.isen-ouest.fr/webAurion/")
+	}
 }
 
 func (w *WebAurion) GetGradesPayload() string {
