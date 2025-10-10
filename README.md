@@ -101,6 +101,58 @@ if err != nil {
 
 ```
 
+## Example for get catalog entries
+
+```go
+
+...
+
+// load catalogs
+err = w.LoadCatalogs()
+if err != nil {
+    fmt.Println("Failed to load catalogs:", err)
+    return
+}
+
+// list catalogs
+catalogs := w.ListCatalogs()
+for i, cat := range catalogs {
+    fmt.Printf("%d. %s\n", i, cat.Name)
+}
+// =
+//0. Catalogue des stages associatifs
+//1. Catalogue des stages ouvriers
+//2. Catalogue des stages techniciens
+//3. Catalogue des stages M1
+//4. Catalogue des stages M2
+//5. Catalogue des apprentissages
+
+// Get entries from a specific catalog (e.g., index 0) ()
+report, err := w.GetCatalogEntries(0) // 0 = Catalogue des stages associatifs
+if err != nil {
+    fmt.Println("Failed to get catalog entries:", err)
+} else {
+    totalEntries, _ := report.Get("totalEntries")
+    fmt.Printf("Total entries: %d\n", totalEntries)
+
+    // print JSON
+    fmt.Println("Catalog entries: ", report.JSON()) // warning: much info
+}
+
+// get more info about 1 row (btn "Consulté" on webaurion)
+entries, _ := report.Get("entries")
+entriesList := entries.([]catalog.CatalogEntry)
+if len(entriesList) > 0 {
+    details, err := w.GetCatalogEntryDetails(entriesList[0]) // first row details (= button "Consulté" on webaurion)
+    if err != nil {
+        fmt.Println("Failed to get entry details:", err)
+    } else {
+        fmt.Println("Entry details: ", details.JSON())
+    }
+}
+
+```
+
 ## LICENSE
 
 Copyright (c) 2022-2024 CorentinMre

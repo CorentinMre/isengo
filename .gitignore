@@ -5,3 +5,5 @@ main.go
 go.sum
 benchmarks/
 tests/
+.DS_Store
+

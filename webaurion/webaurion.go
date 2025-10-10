@@ -13,6 +13,7 @@ import (
 	"time"
 	// "os"
 	"github.com/PuerkitoBio/goquery"
+	cat "github.com/CorentinMre/isengo/webaurion/catalog"
 )
 
 type WebAurion struct {
@@ -33,6 +34,7 @@ type WebAurion struct {
 	Payload          string
 	ProxyEndpoints   []string
 	currentProxyIndex int
+	Catalogs         []cat.Catalog
 }
 
 
@@ -312,6 +314,16 @@ func (w *WebAurion) performRequest(payload string, referer ...string) ([]byte, e
 	return io.ReadAll(resp.Body)
 }
 
+func (w *WebAurion) LoadCatalogs() error {
+	catalogs, err := cat.LoadCatalogsFromWebAurion(w)
+	if err != nil {
+		return err
+	}
+	w.Catalogs = catalogs
+	w.LastRequetTime = time.Now()
+	return nil
+}
+
 func (w *WebAurion) getViewState(body io.Reader, first bool) (string, error) {
 	doc, err := goquery.NewDocumentFromReader(body)
 	if err != nil {
@@ -330,6 +342,8 @@ func (w *WebAurion) getViewState(body io.Reader, first bool) (string, error) {
 				w.PlanningLink = id
 			}
 		})
+
+		doc.Find("a.ui-menuitem-link")
 
 		doc.Find("input").Each(func(i int, s *goquery.Selection) {
 			name, _ := s.Attr("name")
@@ -350,7 +364,7 @@ func (w *WebAurion) getViewState(body io.Reader, first bool) (string, error) {
 }
 
 func (w *WebAurion) setRequestHeaders(req *http.Request) {
-	
+
 	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 	req.Header.Set("Accept-Language", "fr-FR,fr;q=0.9")
 	req.Header.Set("Connection", "keep-alive")
@@ -359,7 +373,7 @@ func (w *WebAurion) setRequestHeaders(req *http.Request) {
 	req.Header.Set("Sec-Fetch-Site", "same-origin")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0.1 Safari/605.1.15")
 
-	
+
 	if req.Method == "POST" && req.URL.Path == "/webAurion/login" {
 		req.Header.Set("Origin", "https://web.isen-ouest.fr")
 		req.Header.Set("Referer", "https://web.isen-ouest.fr/webAurion/faces/Login.xhtml")
@@ -377,6 +391,27 @@ func (w *WebAurion) setRequestHeaders(req *http.Request) {
 	}
 }
 
+// implement catalog.WebAurionClient interface
+func (w *WebAurion) GetBaseURL() string {
+	return w.BaseURL
+}
+
+func (w *WebAurion) GetClient() *http.Client {
+	return w.Client
+}
+
+func (w *WebAurion) SetRequestHeaders(req *http.Request) {
+	w.setRequestHeaders(req)
+}
+
+func (w *WebAurion) GetViewState(reader io.Reader, isInitial bool) (string, error) {
+	return w.getViewState(reader, isInitial)
+}
+
+func (w *WebAurion) GetPayload() string {
+	return w.Payload
+}
+
 func (w *WebAurion) GetGradesPayload() string {
 	return fmt.Sprintf("%s&%s=%s", w.Payload, w.GradeLink, w.GradeLink)
 }
@@ -387,6 +422,37 @@ func (w *WebAurion) GetAbsencesPayload() string {
 
 func (w *WebAurion) GetPlanningPayload() string {
 	return fmt.Sprintf("%s&%s=%s", w.Payload, w.PlanningLink, w.PlanningLink)
+}
+
+func (w *WebAurion) GetCatalogPayload(catalogIndex int) (string, error) {
+	if catalogIndex < 0 || catalogIndex >= len(w.Catalogs) {
+		return "", fmt.Errorf("invalid catalog index: %d (available: 0-%d)", catalogIndex, len(w.Catalogs)-1)
+	}
+
+	catalog := w.Catalogs[catalogIndex]
+	return fmt.Sprintf("%s&form:sidebar=form:sidebar&form:sidebar_menuid=%s", w.Payload, catalog.MenuID), nil
+}
+
+func (w *WebAurion) GetCatalogPayloadByName(catalogName string) (string, error) {
+	for _, catalog := range w.Catalogs {
+		if catalog.Name == catalogName {
+			return fmt.Sprintf("%s&form:sidebar=form:sidebar&form:sidebar_menuid=%s", w.Payload, catalog.MenuID), nil
+		}
+	}
+	return "", fmt.Errorf("catalog not found: %s", catalogName)
+}
+
+func (w *WebAurion) ListCatalogs() []cat.Catalog {
+	return w.Catalogs
+}
+
+// wrapper methods to use catalog package
+func (w *WebAurion) GetCatalogEntries(catalogIndex int) (*cat.CatalogReport, error) {
+	return cat.GetCatalogEntries(w, catalogIndex, w.Catalogs, w.DoRequest)
+}
+
+func (w *WebAurion) GetCatalogEntryDetails(entry cat.CatalogEntry) (*cat.CatalogDetails, error) {
+	return cat.GetCatalogEntryDetails(w, entry)
 }
 
 func (w *WebAurion) GetPlanningPayload2(viewState string) string {
