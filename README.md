@@ -139,11 +139,11 @@ if err != nil {
     fmt.Println("Catalog entries: ", report.JSON()) // warning: much info
 }
 
-// get more info about 1 row (btn "Consulté" on webaurion)
+// get more info about 1 row (btn "Consulter" on webaurion)
 entries, _ := report.Get("entries")
 entriesList := entries.([]catalog.CatalogEntry)
 if len(entriesList) > 0 {
-    details, err := w.GetCatalogEntryDetails(entriesList[0]) // first row details (= button "Consulté" on webaurion)
+    details, err := w.GetCatalogEntryDetails(entriesList[0]) // first row details (= button "Consulter" on webaurion)
     if err != nil {
         fmt.Println("Failed to get entry details:", err)
     } else {
