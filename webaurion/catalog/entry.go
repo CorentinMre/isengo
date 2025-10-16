@@ -233,7 +233,7 @@ func GetCatalogEntryDetails(w WebAurionClient, entry CatalogEntry) (*CatalogDeta
 	}
 
 	// build payload for "Consulter" button
-	payload := fmt.Sprintf("form=form&form:largeurDivCenter=%s&form:idInit=%s&form:messagesRubriqueInaccessible=&form:search-texte=&form:search-texte-avancer=&form:input-expression-exacte=&form:input-un-des-mots=&form:input-aucun-des-mots=&form:input-nombre-debut=&form:input-nombre-fin=&form:calendarDebut_input=&form:calendarFin_input=&form:j_idt193_reflowDD=0_0&form:j_idt193:j_idt198:filter=&form:j_idt193:j_idt200:filter=&form:j_idt193:j_idt202:filter=&form:j_idt193:j_idt204:filter=&form:j_idt193:%d:j_idt217=&form:j_idt267_focus=&form:j_idt267_input=%s&javax.faces.ViewState=%s",
+	payload := fmt.Sprintf("form=form&form:largeurDivCenter=%s&form:idInit=%s&form:messagesRubriqueInaccessible=&form:search-texte=&form:search-texte-avancer=&form:input-expression-exacte=&form:input-un-des-mots=&form:input-aucun-des-mots=&form:input-nombre-debut=&form:input-nombre-fin=&form:calendarDebut_input=&form:calendarFin_input=&form:j_idt193_reflowDD=0_0&form:j_idt193:j_idt198:filter=&form:j_idt193:j_idt200:filter=&form:j_idt193:j_idt202:filter=&form:j_idt193:j_idt204:filter=&form:j_idt193:%d:j_idt215=&form:j_idt265_focus=&form:j_idt265_input=%s&javax.faces.ViewState=%s",
 		largeurDivCenter, idInit, entry.RowIndex, jIdt267Input, url.QueryEscape(viewState))
 
 	// make the POST request
