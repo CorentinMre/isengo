@@ -41,18 +41,21 @@ func ParseCatalogEntries(doc *goquery.Document) []CatalogEntry {
 		company = extractCellText(cells.Eq(0))
 
 		// handle different table structures
+		// structure with button: Entreprise, Ville, Code postal, Pays, Année, Description, Button
+		// Stage M2 (not defined yet)
 		if cells.Length() == 6 {
 			// structure with button: Entreprise, Ville, Code postal, Pays, Année, Button
+			// stages techniciens, ouvriers, associatifs, M1
 			city = extractCellText(cells.Eq(1))
 			postalCode = extractCellText(cells.Eq(2))
 			// skip Pays (index 3)
 			year = strings.ReplaceAll(extractCellText(cells.Eq(4)), "\u00a0", " ")
 		} else if cells.Length() == 5 {
-			// structure: Entreprise, Ville, Code postal, Pays, Année
+			// structure: Entreprise, Ville, Code postal, Année, Button
+			// apprentissages
 			city = extractCellText(cells.Eq(1))
 			postalCode = extractCellText(cells.Eq(2))
-			// skip Pays (index 3)
-			year = strings.ReplaceAll(extractCellText(cells.Eq(4)), "\u00a0", " ")
+			year = strings.ReplaceAll(extractCellText(cells.Eq(3)), "\u00a0", " ")
 		} else if cells.Length() == 4 {
 			// structure: Entreprise, Ville, Code postal, Année
 			city = extractCellText(cells.Eq(1))
